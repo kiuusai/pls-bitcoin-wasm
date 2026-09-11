@@ -12,7 +12,7 @@ OUTPUT="ts/bitcoin"
 build_ts() {
   cd "${PROJECT_DIR}"
 
-  jco transpile "${WASM_SOURCE}" -o "${OUTPUT}"
+  jco transpile -mO "${WASM_SOURCE}" -o "${OUTPUT}"
 }
 
 (build_ts)
