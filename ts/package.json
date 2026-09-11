@@ -1,0 +1,22 @@
+{
+  "name": "generated-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bitcoin/pls_bitcoin_wasm.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "types": ".bitcoin/pls_bitcoin_wasm.d.ts",
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "bitcoinjs-lib": "^7.0.2",
+    "ecpair": "^3.0.2",
+    "tiny-secp256k1": "^2.2.4",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.0"
+  }
+}

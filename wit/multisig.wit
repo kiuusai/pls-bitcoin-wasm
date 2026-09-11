@@ -1,0 +1,70 @@
+package pls:bitcoin@0.1.2;
+
+interface multisig {
+    type buffer = list<u8>;
+    type address = string;
+
+    enum network {
+        signet,
+        bitcoin,
+        regtest,
+        testnet,
+        testnet4,
+    }
+
+    record options {
+        parts: list<buffer>,
+        arbitrators: list<buffer>,
+        quorum: u32,
+        internal-pubkey: buffer,
+        network: network,
+    }
+
+    record script {
+        combination: list<buffer>,
+        leaf: buffer,
+        weight: u32,
+    }
+
+    record utxo {
+        txid: buffer,
+        vout: u32,
+        value: u64,
+    }
+
+    record txout {
+        value: u64,
+        address: address,
+    }
+
+    record start-tx-spending-params {
+        redeem-script: buffer,
+        utxos: list<utxo>,
+        outs: list<txout>,
+    }
+
+    resource multisig { 
+        address: func() -> address;
+        internal-key: func() -> buffer;
+        scripts: func() -> list<script>;
+
+        start-tx-spending: func(params: start-tx-spending-params) -> result<buffer, start-tx-spending-error>;
+    }
+
+    variant error {
+        parts(string),
+        arbitrators(string),
+        internal-pubkey(string),
+    }
+
+    variant start-tx-spending-error {
+        utxo(string),
+        out(string),
+    }
+
+    new: func(opts: options) -> result<multisig, error>;
+}
+
+world multisig-world {
+    export multisig;
+}

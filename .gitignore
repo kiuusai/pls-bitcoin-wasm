@@ -1,0 +1,4 @@
+/target
+**/node_modules/**
+/ts/bitcoin/**.js
+/ts/bitcoin/**.wasm

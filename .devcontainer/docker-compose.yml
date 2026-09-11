@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  wasm:
+    build:
+      dockerfile: .devcontainer/Dockerfile
+      context: ..
+    volumes:
+      - ..:/workspaces/pls_bitcoin_wasm
+
+    command: sleep infinity

@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@bytecodealliance/jco": "^1.33.0",
+    "js-component-tools": "^0.2.3"
+  },
+  "scripts": {
+    "init": "./scripts/init.sh",
+    "build": "./scripts/build-wasm.sh",
+    "build:ts": "npm run build && ./scripts/build-ts.sh"
+  }
+}
