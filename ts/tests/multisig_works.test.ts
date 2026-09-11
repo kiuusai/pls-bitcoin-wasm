@@ -4,8 +4,8 @@ import * as ecc from "tiny-secp256k1";
 import { ECPairFactory } from "ecpair";
 import * as bitcoin from "bitcoinjs-lib";
 
-import { multisig } from "../bitcoin/pls_bitcoin_wasm.js";
-import type { Network } from "../bitcoin/interfaces/pls-bitcoin-multisig.d.ts";
+import { multisig } from "pls-bitcoin-lib";
+import type { Network } from "pls-bitcoin-lib/types";
 
 describe("multisig test", () => {
   const ECPair = ECPairFactory(ecc);

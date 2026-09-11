@@ -1,8 +1,8 @@
 {
-  "name": "generated-ts",
+  "name": "pls-bitcoin-lib",
   "version": "1.0.0",
   "description": "",
-  "main": "bitcoin/pls_bitcoin_wasm.js",
+  "main": "./bitcoin/pls_bitcoin_wasm.js",
   "scripts": {
     "test": "vitest"
   },
@@ -10,6 +10,10 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "exports": {
+    ".": "./bitcoin/pls_bitcoin_wasm.js",
+    "./types": "./bitcoin/interfaces/pls-bitcoin-multisig.d.ts",
+  },
   "types": ".bitcoin/pls_bitcoin_wasm.d.ts",
   "devDependencies": {
     "@types/node": "^22.20.2",
