@@ -1,6 +1,6 @@
 {
   "name": "pls-bitcoin-lib",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "",
   "main": "./bitcoin/pls_bitcoin_wasm.js",
   "scripts": {
