@@ -1,13 +1,21 @@
-FROM mcr.microsoft.com/devcontainers/go:2-1.26-trixie
+FROM mcr.microsoft.com/devcontainers/rust:2-1-trixie
+
+USER root
+
+RUN curl https://getnigiri.vulpem.com | bash
+
+ARG NODE_VERSION="v24.11.1"
+
+ENV NODE_HOME="/usr/local/lib/nodejs/node-${NODE_VERSION}-linux-x64"
+ENV PATH=${NODE_HOME}/bin:${PATH}
+
+RUN cd /tmp && \
+  mkdir /usr/local/lib/nodejs && \
+  curl -fsSLO "https://nodejs.org/dist/${NODE_VERSION}/node-${NODE_VERSION}-linux-x64.tar.gz" && \
+  tar -xzf "node-${NODE_VERSION}-linux-x64.tar.gz" -C /usr/local/lib/nodejs && \
+  rm "/tmp/node-${NODE_VERSION}-linux-x64.tar.gz"
+
+RUN --mount=type=bind,source=scripts/configure-cargo.sh,target=/tmp/configure-cargo.sh,readonly \
+  /tmp/configure-cargo.sh
 
 USER vscode
-
-SHELL [ "/bin/bash", "-c" ]
-
-RUN go install github.com/asdf-vm/asdf/cmd/asdf@v0.20.0
-
-ENV PATH="${PATH}:${HOME}/.asdf/shims"
-
-RUN echo 'export PATH="${PATH}:${HOME}/.asdf/shims"' | sudo tee /etc/profile.d/asdf.sh >/dev/null
-
-RUN echo '. <(asdf completion bash)' > "${HOME}/.bashrc"
