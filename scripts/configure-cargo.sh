@@ -6,7 +6,7 @@
 set -e
 
 install_cargo_deps() {
-  sudo apt update && sudo apt install build-essential clang
+  apt update -y && apt install -y build-essential clang
 
   rustup target add wasm32-unknown-unknown
 
