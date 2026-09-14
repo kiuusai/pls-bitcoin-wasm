@@ -1,5 +1,5 @@
 use bitcoin::hashes::Hash;
-use pls_bitcoin_lib::{Multisig, MultisigOptions, Utxo};
+use pls_bitcoin_lib::{Multisig, MultisigData, SpendingData, Utxo};
 
 use bitcoin::secp256k1::PublicKey;
 use bitcoin::{Address, Amount, Network, OutPoint, ScriptBuf, TxOut, Txid};
@@ -89,7 +89,11 @@ impl multisig::GuestMultisig for MultisigWrapper {
             })
             .collect::<Result<_, _>>()?;
 
-        let psbt = self.multisig.start_tx_spending(redeem_script, utxos, outs);
+        let psbt = self.multisig.start_tx_spending(SpendingData {
+            redeem_script,
+            utxos,
+            outs,
+        });
 
         return Ok(psbt.serialize());
     }
@@ -120,7 +124,7 @@ impl multisig::Guest for MultisigComponent {
         let internal_pubkey = PublicKey::from_slice(&opts.internal_pubkey.clone())
             .map_err(|err| multisig::Error::InternalPubkey(err.to_string()))?;
 
-        let multisig = Multisig::new(MultisigOptions {
+        let multisig = Multisig::new(MultisigData {
             parts,
             arbitrators,
             internal_pubkey,
