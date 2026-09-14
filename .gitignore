@@ -2,4 +2,5 @@
 /src/bindings.rs
 **/node_modules/**
 /ts/bitcoin/**.js
+/ts/bitcoin/interfaces/wasi-*
 /ts/bitcoin/**.wasm

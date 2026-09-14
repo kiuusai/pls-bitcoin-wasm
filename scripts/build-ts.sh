@@ -6,7 +6,9 @@ FILENAME="$(realpath "${BASH_SOURCE[0]}")"
 DIRNAME="$(dirname "${FILENAME}")"
 PROJECT_DIR="$(realpath "${DIRNAME}/..")"
 
-WASM_SOURCE="target/wasm32-unknown-unknown/release/pls_bitcoin_wasm.wasm"
+TARGET="wasm32-unknown-unknown"
+
+WASM_SOURCE="target/${TARGET}/release/pls_bitcoin_wasm.wasm"
 OUTPUT="ts/bitcoin"
 
 build_ts() {
