@@ -1,12 +1,18 @@
 {
   "name": "pls-bitcoin-lib",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "A Bitcoin multisig contracts constructor for Private Law Society project",
   "main": "./bitcoin/pls_bitcoin_wasm.js",
   "scripts": {
     "test": "vitest"
   },
-  "keywords": ["bitcoin", "contracts", "pls", "private-law-society", "multisig"],
+  "keywords": [
+    "bitcoin",
+    "contracts",
+    "pls",
+    "private-law-society",
+    "multisig"
+  ],
   "author": "kiuusai (Kalango)",
   "license": "MIT",
   "type": "module",
@@ -17,7 +23,9 @@
   "types": ".bitcoin/pls_bitcoin_wasm.d.ts",
   "devDependencies": {
     "@types/node": "^22.20.2",
+    "bitcoin-json-rpc": "^1.4.2",
     "bitcoinjs-lib": "^7.0.2",
+    "buffer": "^6.0.3",
     "ecpair": "^3.0.2",
     "tiny-secp256k1": "^2.2.4",
     "typescript": "^7.0.2",
