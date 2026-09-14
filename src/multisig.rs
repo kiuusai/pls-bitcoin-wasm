@@ -57,7 +57,13 @@ impl multisig::GuestMultisig for MultisigWrapper {
             .clone()
             .iter()
             .map(|utxo| {
-                let txid = Txid::from_slice(&utxo.txid)
+                // Necessary because Txid::from_slice needs the reverse data order to mount txid
+                // correctly
+                let mut txid_data = utxo.txid.clone();
+
+                txid_data.reverse();
+
+                let txid = Txid::from_slice(&txid_data)
                     .map_err(|err| multisig::StartTxSpendingError::Utxo(err.to_string()))?;
 
                 Ok(Utxo {
