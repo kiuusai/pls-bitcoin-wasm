@@ -1,9 +1,10 @@
-package pls:bitcoin@0.1.2;
+package pls:bitcoin@0.2.1;
 
 interface multisig {
     type buffer = list<u8>;
     type address = string;
 
+    /// Describes which network the multisig should be generated
     enum network {
         signet,
         bitcoin,
@@ -12,57 +13,96 @@ interface multisig {
         testnet4,
     }
 
-    record options {
+    /// Required data for multisig creation
+    record multisig-data {
+        /// A public key list from contractors (involved parts).
+        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
         parts: list<buffer>,
+        /// A public key list from arbitrators.
+        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
         arbitrators: list<buffer>,
+        /// Quorum of minimal necessary arbitrators to unlock funds
         quorum: u32,
+        /// Internal public key. It's a critical data.
+        /// If the private key of this one is known, all funds can be sweeped.
+        /// This field exists for compatibility purposes with current on-air system.
+        /// It's a compressed public key (33 bytes key: 32 bytes + parity byte)
+        // TODO: Finds a way to create a verifiable one using parts and arbitrators data instead of a hardcoded one
         internal-pubkey: buffer,
+        /// Network to create  multisig
         network: network,
     }
 
+    /// Describes a multisig script
     record script {
+        /// Combination of public keys for this script.
+        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
         combination: list<buffer>,
+        /// Taproot script bytes
         leaf: buffer,
+        /// Script weight in taptree
         weight: u32,
     }
 
     record utxo {
+        /// UTXO transaction ID bytes
         txid: buffer,
+        /// Index of UTXO from origin transaction in blockchain
         vout: u32,
+        /// Value in sats of current UTXO
         value: u64,
     }
 
+    /// Transaction output for spending case
     record txout {
+        /// Amount deposit in given address
         value: u64,
+        /// Address to deposit amount
         address: address,
     }
 
-    record start-tx-spending-params {
+    /// Required data to start UTXO's spending
+    record start-tx-spending-data {
+        /// Script bytes to unlock UTXO's
         redeem-script: buffer,
+        /// List of UTXO's to unlock
         utxos: list<utxo>,
+        /// List of outputs for unlocked funds
         outs: list<txout>,
     }
 
-    resource multisig { 
+    /// Multisig implementation
+    resource multisig {
+        /// Returns multisig address
         address: func() -> address;
+        /// Returns internal public key used to generate the multisig (XOnly format)
         internal-key: func() -> buffer;
+        /// Returns the list of scripts combinations to unlock funds
         scripts: func() -> list<script>;
-
-        start-tx-spending: func(params: start-tx-spending-params) -> result<buffer, start-tx-spending-error>;
+        /// Starts spending considering given data
+        start-tx-spending: func(params: start-tx-spending-data) -> result<buffer, start-tx-spending-error>;
     }
 
-    variant error {
+    /// Multisig build errors
+    variant multisig-error {
+        /// An error occurred while processing contractors (involved parts) keys
         parts(string),
+        /// An error occured while processing arbitrators keys
         arbitrators(string),
+        /// An error occurred while processing the internal public key
         internal-pubkey(string),
     }
 
+    /// Start UTXO's spending errors
     variant start-tx-spending-error {
+        /// An error occurred while processing UTXO's
         utxo(string),
+        /// An error occured while processing outputs
         out(string),
     }
 
-    new: func(opts: options) -> result<multisig, error>;
+    /// Multisig builder
+    new: func(data: multisig-data) -> result<multisig, multisig-error>;
 }
 
 world multisig-world {

@@ -48,7 +48,7 @@ impl multisig::GuestMultisig for MultisigWrapper {
 
     fn start_tx_spending(
         &self,
-        params: multisig::StartTxSpendingParams,
+        params: multisig::StartTxSpendingData,
     ) -> Result<multisig::Buffer, multisig::StartTxSpendingError> {
         let redeem_script = ScriptBuf::from_bytes(params.redeem_script);
 
@@ -110,32 +110,32 @@ pub struct MultisigComponent;
 impl multisig::Guest for MultisigComponent {
     type Multisig = MultisigWrapper;
 
-    fn new(opts: multisig::Options) -> Result<multisig::Multisig, multisig::Error> {
-        let parts: Vec<PublicKey> = opts
+    fn new(data: multisig::MultisigData) -> Result<multisig::Multisig, multisig::MultisigError> {
+        let parts: Vec<PublicKey> = data
             .parts
             .clone()
             .iter()
             .map(|part| PublicKey::from_slice(part))
             .collect::<Result<_, _>>()
-            .map_err(|err| multisig::Error::Parts(err.to_string()))?;
+            .map_err(|err| multisig::MultisigError::Parts(err.to_string()))?;
 
-        let arbitrators: Vec<PublicKey> = opts
+        let arbitrators: Vec<PublicKey> = data
             .arbitrators
             .clone()
             .iter()
             .map(|arbitrator| PublicKey::from_slice(arbitrator))
             .collect::<Result<_, _>>()
-            .map_err(|err| multisig::Error::Arbitrators(err.to_string()))?;
+            .map_err(|err| multisig::MultisigError::Arbitrators(err.to_string()))?;
 
-        let internal_pubkey = PublicKey::from_slice(&opts.internal_pubkey.clone())
-            .map_err(|err| multisig::Error::InternalPubkey(err.to_string()))?;
+        let internal_pubkey = PublicKey::from_slice(&data.internal_pubkey.clone())
+            .map_err(|err| multisig::MultisigError::InternalPubkey(err.to_string()))?;
 
         let multisig = Multisig::new(MultisigData {
             parts,
             arbitrators,
             internal_pubkey,
-            quorum: opts.quorum as usize,
-            network: enum_conversion(opts.network),
+            quorum: data.quorum as usize,
+            network: enum_conversion(data.network),
         });
 
         Ok(multisig::Multisig::new(MultisigWrapper { multisig }))
