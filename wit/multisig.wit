@@ -54,7 +54,7 @@ interface multisig {
     }
 
     /// Transaction output for spending case
-    record txout {
+    record tx-out {
         /// Amount deposit in given address
         value: u64,
         /// Address to deposit amount
@@ -68,7 +68,7 @@ interface multisig {
         /// List of UTXO's to unlock
         utxos: list<utxo>,
         /// List of outputs for unlocked funds
-        outs: list<txout>,
+        outs: list<tx-out>,
     }
 
     /// Multisig implementation

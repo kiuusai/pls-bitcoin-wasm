@@ -87,7 +87,7 @@ export interface Utxo {
 /**
  * Transaction output for spending case
  */
-export interface Txout {
+export interface TxOut {
   /**
    * Amount deposit in given address
    */
@@ -112,7 +112,7 @@ export interface StartTxSpendingData {
   /**
    * List of outputs for unlocked funds
    */
-  outs: Array<Txout>,
+  outs: Array<TxOut>,
 }
 /**
  * Multisig build errors
