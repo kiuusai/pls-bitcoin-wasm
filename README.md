@@ -16,7 +16,6 @@ Major updates means protocol incompatibility with older versions.
 Middle ones means possible incompatible API definitions or perhaps new developed features.
 Also, as any beta project it may susceptible to failues.
 We test it rigorously and we have an active community that help us to resolve a lot of issues, but IT REMAINS AS A BETA SOFTWARE.
-We can ensure that it works. But we can't do the same with your intelligence.
 Use it as your own risk.
 
 By using this software you understand that we (Private Law Society) aren't responsible for any funds losses.
