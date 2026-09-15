@@ -15,6 +15,7 @@ build_ts() {
   cd "${PROJECT_DIR}"
 
   jco transpile -mO "${WASM_SOURCE}" -o "${OUTPUT}"
+  jco types wit/multisig.wit --name pls_bitcoin_wasm -o "${OUTPUT}"
 }
 
 (build_ts)
