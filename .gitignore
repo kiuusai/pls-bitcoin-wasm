@@ -3,4 +3,5 @@
 **/node_modules/**
 /ts/bitcoin/**.js
 /ts/bitcoin/interfaces/wasi-*
+!/ts/bitcoin/index.js
 /ts/bitcoin/**.wasm

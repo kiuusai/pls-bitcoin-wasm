@@ -17,7 +17,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./bitcoin/pls_bitcoin_wasm.js",
+    ".": "./bitcoin/index.js",
     "./types": "./bitcoin/interfaces/pls-bitcoin-multisig.d.ts"
   },
   "types": ".bitcoin/pls_bitcoin_wasm.d.ts",

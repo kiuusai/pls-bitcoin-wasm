@@ -5,7 +5,7 @@ import { ECPairFactory } from "ecpair";
 import * as bitcoin from "bitcoinjs-lib";
 import RpcClient from "bitcoin-json-rpc";
 
-import { multisig } from "pls-bitcoin-lib";
+import multisig from "pls-bitcoin-lib";
 import type { Network } from "pls-bitcoin-lib/types";
 
 describe("multisig test", () => {
