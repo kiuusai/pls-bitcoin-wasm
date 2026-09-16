@@ -26,14 +26,15 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
-      - name: Cargo cache files
+      - name: Cache files
         uses: actions/cache@v6
         with:
           path: |
             .cargo-ci
-          key: cargo-${{ hashFiles('Cargo.lock', 'Cargo.toml') }}
+            **/node_modules/**
+          key: pls-bitcoin-wasm-${{ hashFiles('Cargo.lock', 'Cargo.toml', '**/node_modules/**') }}
           restore-keys: |
-            cargo-
+            pls-bitcoin-wasm-
 
       - name: Docker registry login
         uses: docker/login-action@v4
@@ -52,18 +53,19 @@ jobs:
             set -e
 
             export CARGO_HOME="${PWD}/.cargo-ci"
-
             mkdir -p "${CARGO_HOME}"
 
+            npm install
             npm run build:ts
 
             nigiri start
 
-            cd ts
+            (
+              cd ts
 
-            npm test -- --run
-
-            cd -
+              npm install
+              npm test -- --run
+            )
 
       - name: Show package contents
         working-directory: ts
