@@ -42,7 +42,11 @@ jobs:
             cd -
 
       - name: Show package contents
-        run: npm pack --dry-run
+        run: |
+          cd ts
+          npm pack --dry-run
 
       - name: Publish to npm
-        run: npm publish
+        run: |
+          cd ts
+          npm publish
