@@ -48,7 +48,7 @@ jobs:
         with:
           imageName: ghcr.io/${{ github.repository }}/devcontainer
           cacheFrom: ghcr.io/${{ github.repository }}/devcontainer
-          push: filter
+          push: always
           runCmd: |
             set -e
 
