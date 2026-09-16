@@ -6,6 +6,11 @@
   "scripts": {
     "test": "vitest"
   },
+  "repository": {
+    "url": "git+https://github.com/kiuusai/pls-bitcoin-wasm",
+    "type": "git",
+    "directory": "ts"
+  },
   "keywords": [
     "bitcoin",
     "contracts",
