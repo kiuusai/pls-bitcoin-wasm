@@ -76,3 +76,14 @@ jobs:
         working-directory: ts
         run: |
           npm publish
+
+      - name: Delete old cache files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh cache list \
+            --key pls-bitcoin-wasm-
+          --limit 100
+          --json id,key
+          --jq '.[1:] | .[].id' |
+          xargs -r -n1 gh cache delete --confirm
