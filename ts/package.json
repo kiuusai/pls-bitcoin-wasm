@@ -17,7 +17,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./bitcoin/index.js",
+    ".": "./bitcoin/index.js"
   },
   "types": "./bitcoin/index.d.ts",
   "devDependencies": {
