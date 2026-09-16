@@ -40,7 +40,7 @@ We call this minimum quantity of arbitrators needed to unlock UTXO's as `quorum`
 If you want to create a contract multisig, you can do something like this:
 ```typescript
 import multisig from "pls-bitcoin-lib";
-import type { Network } from "pls-bitcoin-lib/types";
+import type { Network } from "pls-bitcoin-lib";
 
 // List of contractors public keys in compressed format (33 bytes: 32 bytes + parity byte)
 const parts: Uint8Array[];
@@ -83,7 +83,7 @@ const address = contractMultisig.address();
 
 To spend UTXO's in multisig, do something like this:
 ```typescript
-import type { Multisig, Script, Utxo, TxOut } from "pls-bitcoin-lib/types";
+import type { Multisig, Script, Utxo, TxOut } from "pls-bitcoin-lib";
 import { toXOnly, Psbt } from "bitcoinjs-lib";
 import type { ECPairInterface } from "ecpair";
 

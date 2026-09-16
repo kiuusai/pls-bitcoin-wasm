@@ -6,7 +6,7 @@ import * as bitcoin from "bitcoinjs-lib";
 import RpcClient from "bitcoin-json-rpc";
 
 import multisig from "pls-bitcoin-lib";
-import type { Network } from "pls-bitcoin-lib/types";
+import type { Network } from "pls-bitcoin-lib";
 
 describe("multisig test", () => {
   const ECPair = ECPairFactory(ecc);
@@ -159,6 +159,6 @@ describe("multisig test", () => {
 
     const finalTx = psbt.extractTransaction();
 
-    await rpcClient.sendRawTransaction(finalTx.toHex());
+    console.log(await rpcClient.sendRawTransaction(finalTx.toHex()));
   });
 });

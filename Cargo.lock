@@ -227,7 +227,7 @@ dependencies = [
 
 [[package]]
 name = "pls-bitcoin-wasm"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "bitcoin",
  "pls-bitcoin-lib",
