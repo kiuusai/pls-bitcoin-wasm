@@ -1,3 +1,4 @@
+use bitcoin::absolute::LockTime;
 use bitcoin::hashes::Hash;
 use pls_bitcoin_lib::{Multisig, MultisigData, SpendingData, Utxo};
 
@@ -5,6 +6,9 @@ use bitcoin::secp256k1::PublicKey;
 use bitcoin::{Address, Amount, Network, OutPoint, ScriptBuf, TxOut, Txid};
 
 use crate::bindings::exports::pls::bitcoin::multisig;
+use crate::bindings::exports::pls::bitcoin::multisig::{
+    MultisigError, StartTxSpendingData, StartTxSpendingError,
+};
 
 pub struct MultisigWrapper {
     multisig: Multisig,
@@ -48,8 +52,8 @@ impl multisig::GuestMultisig for MultisigWrapper {
 
     fn start_tx_spending(
         &self,
-        params: multisig::StartTxSpendingData,
-    ) -> Result<multisig::Buffer, multisig::StartTxSpendingError> {
+        params: StartTxSpendingData,
+    ) -> Result<multisig::Buffer, StartTxSpendingError> {
         let redeem_script = ScriptBuf::from_bytes(params.redeem_script);
 
         let utxos: Vec<Utxo> = params
@@ -84,9 +88,9 @@ impl multisig::GuestMultisig for MultisigWrapper {
                 let address = out
                     .address
                     .parse::<Address<_>>()
-                    .map_err(|err| multisig::StartTxSpendingError::Out(err.to_string()))?
+                    .map_err(|err| StartTxSpendingError::Out(err.to_string()))?
                     .require_network(self.multisig.network())
-                    .map_err(|err| multisig::StartTxSpendingError::Out(err.to_string()))?;
+                    .map_err(|err| StartTxSpendingError::Out(err.to_string()))?;
 
                 Ok(TxOut {
                     value: Amount::from_sat(out.value),
@@ -95,10 +99,22 @@ impl multisig::GuestMultisig for MultisigWrapper {
             })
             .collect::<Result<_, _>>()?;
 
+        let lock_time = if params.lock_time.is_some() {
+            Some(match params.lock_time.unwrap() {
+                multisig::LockTime::BlockHeight(height) => LockTime::from_height(height)
+                    .map_err(|err| StartTxSpendingError::LockTime(err.to_string()))?,
+                multisig::LockTime::Timestamp(timestamp) => LockTime::from_time(timestamp)
+                    .map_err(|err| StartTxSpendingError::LockTime(err.to_string()))?,
+            })
+        } else {
+            None
+        };
+
         let psbt = self.multisig.start_tx_spending(SpendingData {
             redeem_script,
             utxos,
             outs,
+            lock_time,
         });
 
         return Ok(psbt.serialize());
@@ -110,7 +126,7 @@ pub struct MultisigComponent;
 impl multisig::Guest for MultisigComponent {
     type Multisig = MultisigWrapper;
 
-    fn new(data: multisig::MultisigData) -> Result<multisig::Multisig, multisig::MultisigError> {
+    fn new(data: multisig::MultisigData) -> Result<multisig::Multisig, MultisigError> {
         let parts: Vec<PublicKey> = data
             .parts
             .clone()

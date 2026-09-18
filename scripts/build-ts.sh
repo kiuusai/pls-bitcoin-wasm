@@ -25,6 +25,8 @@ build_ts() {
 
   general_args=(
     --name pls_bitcoin_wasm
+    --use-namespace-objects
+    --strict
   )
 
   jco transpile \

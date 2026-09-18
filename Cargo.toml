@@ -1,6 +1,6 @@
 [package]
 name = "pls-bitcoin-wasm"
-version = "0.2.3"
+version = "0.2.4"
 edition = "2024"
 
 [lib]
@@ -8,5 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 bitcoin = "0.32.102"
-pls-bitcoin-lib = "0.2.1"
+pls-bitcoin-lib = "0.2.4"
 wit-bindgen = "0.61.1"

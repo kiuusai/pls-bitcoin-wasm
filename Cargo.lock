@@ -218,16 +218,16 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "pls-bitcoin-lib"
-version = "0.2.1"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "254abf570ee52ab78319e8470fb7beecf4da676d9dc01733b29147d4262a8778"
+checksum = "6cad71d1e39dd13cac2beb7deb82077b541302a0bad55fb5dfed5dcb2d284c43"
 dependencies = [
  "bitcoin",
 ]
 
 [[package]]
 name = "pls-bitcoin-wasm"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "bitcoin",
  "pls-bitcoin-lib",

@@ -21,6 +21,13 @@ export type Address = string;
  * ## `"testnet4"`
  */
 export type Network = 'signet' | 'bitcoin' | 'regtest' | 'testnet' | 'testnet4';
+export const Network: {
+  readonly Signet: 'signet',
+  readonly Bitcoin: 'bitcoin',
+  readonly Regtest: 'regtest',
+  readonly Testnet: 'testnet',
+  readonly Testnet4: 'testnet4',
+};
 /**
  * Required data for multisig creation
  */
@@ -98,6 +105,38 @@ export interface TxOut {
   address: Address,
 }
 /**
+ * Defines an absolute lock time to mine a transaction
+ */
+export type LockTime = LockTimeBlockHeight | LockTimeTimestamp;
+/**
+ * Locks using block height strategy.
+ * It locks a transaction to be mined until the target block count being mined
+ */
+export interface LockTimeBlockHeight {
+  tag: 'block-height',
+  val: number,
+}
+/**
+ * Locks using timestamp strategy.
+ * It locks a transaction to be mined until the Unix timestamp (in seconds) is being satisfied
+ */
+export interface LockTimeTimestamp {
+  tag: 'timestamp',
+  val: number,
+}
+export const LockTime: {
+  /**
+   * Locks using block height strategy.
+   * It locks a transaction to be mined until the target block count being mined
+   */
+  readonly BlockHeight: (val: number) => Extract<LockTime, { tag: 'block-height' }>,
+  /**
+   * Locks using timestamp strategy.
+   * It locks a transaction to be mined until the Unix timestamp (in seconds) is being satisfied
+   */
+  readonly Timestamp: (val: number) => Extract<LockTime, { tag: 'timestamp' }>,
+};
+/**
  * Required data to start UTXO's spending
  */
 export interface StartTxSpendingData {
@@ -113,6 +152,10 @@ export interface StartTxSpendingData {
    * List of outputs for unlocked funds
    */
   outs: Array<TxOut>,
+  /**
+   * Option to lock transaction mining with an absolute time definition
+   */
+  lockTime?: LockTime,
 }
 /**
  * Multisig build errors
@@ -139,10 +182,24 @@ export interface MultisigErrorInternalPubkey {
   tag: 'internal-pubkey',
   val: string,
 }
+export const MultisigError: {
+  /**
+   * An error occurred while processing contractors (involved parts) keys
+   */
+  readonly Parts: (val: string) => Extract<MultisigError, { tag: 'parts' }>,
+  /**
+   * An error occured while processing arbitrators keys
+   */
+  readonly Arbitrators: (val: string) => Extract<MultisigError, { tag: 'arbitrators' }>,
+  /**
+   * An error occurred while processing the internal public key
+   */
+  readonly InternalPubkey: (val: string) => Extract<MultisigError, { tag: 'internal-pubkey' }>,
+};
 /**
  * Start UTXO's spending errors
  */
-export type StartTxSpendingError = StartTxSpendingErrorUtxo | StartTxSpendingErrorOut;
+export type StartTxSpendingError = StartTxSpendingErrorUtxo | StartTxSpendingErrorOut | StartTxSpendingErrorLockTime;
 /**
  * An error occurred while processing UTXO's
  */
@@ -157,6 +214,27 @@ export interface StartTxSpendingErrorOut {
   tag: 'out',
   val: string,
 }
+/**
+ * An error occured while configuring lock-time
+ */
+export interface StartTxSpendingErrorLockTime {
+  tag: 'lock-time',
+  val: string,
+}
+export const StartTxSpendingError: {
+  /**
+   * An error occurred while processing UTXO's
+   */
+  readonly Utxo: (val: string) => Extract<StartTxSpendingError, { tag: 'utxo' }>,
+  /**
+   * An error occured while processing outputs
+   */
+  readonly Out: (val: string) => Extract<StartTxSpendingError, { tag: 'out' }>,
+  /**
+   * An error occured while configuring lock-time
+   */
+  readonly LockTime: (val: string) => Extract<StartTxSpendingError, { tag: 'lock-time' }>,
+};
 
 export class Multisig implements Disposable {
   /**

@@ -61,6 +61,16 @@ interface multisig {
         address: address,
     }
 
+    /// Defines an absolute lock time to mine a transaction
+    variant lock-time {
+        /// Locks using block height strategy.
+        /// It locks a transaction to be mined until the target block count being mined
+        block-height(u32),
+        /// Locks using timestamp strategy.
+        /// It locks a transaction to be mined until the Unix timestamp (in seconds) is being satisfied
+        timestamp(u32),
+    }
+
     /// Required data to start UTXO's spending
     record start-tx-spending-data {
         /// Script bytes to unlock UTXO's
@@ -69,6 +79,8 @@ interface multisig {
         utxos: list<utxo>,
         /// List of outputs for unlocked funds
         outs: list<tx-out>,
+        /// Option to lock transaction mining with an absolute time definition
+        lock-time: option<lock-time>,
     }
 
     /// Multisig implementation
@@ -99,6 +111,8 @@ interface multisig {
         utxo(string),
         /// An error occured while processing outputs
         out(string),
+        /// An error occured while configuring lock-time
+        lock-time(string),
     }
 
     /// Multisig builder
