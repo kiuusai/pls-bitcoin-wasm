@@ -30,6 +30,7 @@
     "bitcoin-json-rpc": "^1.4.2",
     "bitcoinjs-lib": "^7.0.2",
     "buffer": "^6.0.3",
+    "dotenv": "^18.0.0",
     "ecpair": "^3.0.2",
     "tiny-secp256k1": "^2.2.4",
     "typescript": "^7.0.2",

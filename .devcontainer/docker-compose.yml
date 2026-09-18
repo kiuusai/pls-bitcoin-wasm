@@ -1,5 +1,9 @@
 version: "3"
 
+networks:
+  pls_bitcoin_wasm:
+    driver: bridge
+
 services:
   wasm:
     build:
@@ -7,5 +11,38 @@ services:
       context: ..
     volumes:
       - ..:/workspaces/pls_bitcoin_wasm
+    networks:
+      - pls_bitcoin_wasm
 
     command: sleep infinity
+
+    depends_on:
+      bitcoind:
+        condition: service_healthy
+
+  bitcoind:
+    build:
+      context: ./bitcoin
+      dockerfile: Dockerfile
+    environment:
+      RPC_USER: admin1
+      RPC_PASSWORD: 123
+      RPC_PORT: 18443
+      PORT: 18444
+      WALLET: default
+    expose:
+      - 18444
+      - 18443
+    networks:
+      - pls_bitcoin_wasm
+    healthcheck:
+      test: |
+        bitcoin-cli \
+          -rpcconnect=0.0.0.0 \
+          -rpcport=18443 \
+          -rpcuser=admin1 \
+          -rpcpassword=123 \
+          getblockchaininfo >/dev/null
+      interval: 1s
+      timeout: 10s
+      retries: 5

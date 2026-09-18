@@ -2,8 +2,6 @@ FROM mcr.microsoft.com/devcontainers/rust:2-1-trixie
 
 USER root
 
-RUN curl https://getnigiri.vulpem.com | bash
-
 ARG NODE_VERSION="v24.11.1"
 
 ENV NODE_HOME="/usr/local/lib/nodejs/node-${NODE_VERSION}-linux-x64"

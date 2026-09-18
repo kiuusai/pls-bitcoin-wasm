@@ -18,7 +18,7 @@ describe("multisig test", () => {
   beforeAll(() => {
     bitcoin.initEccLib(ecc);
 
-    rpcClient = new RpcClient(env.RPC_URL || "http://admin1:123@0.0.0.0:18443");
+    rpcClient = new RpcClient(env.RPC_URL || "http://admin1:123@bitcoind:18443");
   });
 
   const networkRegexp: { [key in Network]: RegExp } = {

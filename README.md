@@ -28,7 +28,6 @@ Every tool used here are optional. But all help you develop faster. So consider 
 See a resume of environment helpers:
 - [Devcontainers](#devcontainers)
 - [ASDF](#asdf)
-- [Nigiri (inside Devcontainers)](#nigiri-inside-devcontainers)
 
 Also, see some topics to work with this project:
 - [Project API definition](#project-api-definition)
@@ -109,23 +108,6 @@ In project root install tools:
 asdf install
 ```
 
-### Nigiri (inside Devcontainers)
-
-[Nigiri](https://github.com/vulpemventures/nigiri) are being used as a helper to e2e tests.
-It's installed in devcontainers and it's necessary to run e2e tests correctly.
-
-#### Using Nigiri
-
-Inside devcontainer you can start Nigiri by just doing:
-```bash
-nigiri start
-```
-
-To prune Nigiri data you can stop it with `--delete` flag:
-```bash
-nigiri stop --delete
-```
-
 ### Project API definition
 
 This project uses [WIT (WebAssembly Interface Type)](https://component-model.bytecodealliance.org/) to define API usage and creates WASM component properly.
@@ -165,11 +147,6 @@ npm run build:ts
 It will 
 
 ### Automated tests
-
-#### DISCLAIMER
-
-You need nigiri instance started to run automated tests.
-See [Nigiri (inside Devcontainers)](#nigiri-inside-devcontainers) for more information.
 
 #### Executing automated tests
 

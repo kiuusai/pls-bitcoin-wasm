@@ -58,8 +58,6 @@ jobs:
             npm install
             npm run build:ts
 
-            nigiri start
-
             (
               cd ts
 
