@@ -116,7 +116,7 @@ interface multisig {
     }
 
     /// Multisig builder
-    new: func(data: multisig-data) -> result<multisig, multisig-error>;
+    create-multisig: func(data: multisig-data) -> result<multisig, multisig-error>;
 }
 
 world multisig-world {

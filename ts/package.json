@@ -1,9 +1,10 @@
 {
   "name": "pls-bitcoin-lib",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A Bitcoin multisig contracts constructor for Private Law Society project",
-  "main": "./bitcoin/index.cjs",
+  "main": "./bitcoin/index.js",
   "scripts": {
+    "build": "node build.js",
     "test": "vitest"
   },
   "repository": {
@@ -22,7 +23,7 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./bitcoin/index.cjs"
+    ".": "./bitcoin/index.js"
   },
   "types": "./bitcoin/index.d.ts",
   "devDependencies": {
@@ -32,6 +33,7 @@
     "buffer": "^6.0.3",
     "dotenv": "^18.0.0",
     "ecpair": "^3.0.2",
+    "ejs": "^6.0.1",
     "tiny-secp256k1": "^2.2.4",
     "typescript": "^7.0.2",
     "vitest": "^5.0.0"

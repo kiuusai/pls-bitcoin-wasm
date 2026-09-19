@@ -126,7 +126,7 @@ pub struct MultisigComponent;
 impl multisig::Guest for MultisigComponent {
     type Multisig = MultisigWrapper;
 
-    fn new(data: multisig::MultisigData) -> Result<multisig::Multisig, MultisigError> {
+    fn create_multisig(data: multisig::MultisigData) -> Result<multisig::Multisig, MultisigError> {
         let parts: Vec<PublicKey> = data
             .parts
             .clone()

@@ -54,7 +54,7 @@ describe("multisig test", () => {
 
       const arbitrators = arbitratorsEcpair.map((ecpair) => ecpair.publicKey);
 
-      const ms = multisig.new({
+      const ms = multisig.createMultisig({
         parts,
         arbitrators,
         quorum: 1,
@@ -137,7 +137,7 @@ describe("multisig test", () => {
 
       const internalPubkey: Uint8Array = ECPair.makeRandom().publicKey;
 
-      const ms = multisig.new({
+      const ms = multisig.createMultisig({
         parts,
         arbitrators,
         quorum,

@@ -2,8 +2,7 @@
 /**
  * Multisig builder
  */
-export { _new as new };
-function _new(data: MultisigData): Multisig;
+export function createMultisig(data: MultisigData): Multisig;
 export type Buffer = Uint8Array;
 export type Address = string;
 /**

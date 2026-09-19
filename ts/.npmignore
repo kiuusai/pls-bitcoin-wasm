@@ -2,5 +2,7 @@ node_modules
 tests
 vitest.config.ts
 tsconfig.json
+build.js
 /**/**.env
 /**/**.env.*
+/**/**.ejs

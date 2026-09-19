@@ -1,0 +1,7 @@
+import { multisig } from "./pls_bitcoin_wasm.js";
+
+export default multisig;
+
+export const {<%for (let property of properties) {%>
+  <%= property %>,
+<%}%>} = multisig;

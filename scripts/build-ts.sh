@@ -5,6 +5,7 @@ set -e
 FILENAME="$(realpath "${BASH_SOURCE[0]}")"
 DIRNAME="$(dirname "${FILENAME}")"
 PROJECT_DIR="$(realpath "${DIRNAME}/..")"
+TS_DIR="${PROJECT_DIR}/ts"
 
 TARGET="wasm32-unknown-unknown"
 
@@ -36,6 +37,10 @@ build_ts() {
   jco types \
     "${general_args[@]}" \
     "${WIT_SOURCE}" -o "${OUTPUT}"
+
+  cd "${TS_DIR}"
+
+  npm run build
 }
 
 (build_ts)

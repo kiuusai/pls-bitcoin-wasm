@@ -66,7 +66,7 @@ const internalPubkey: Uint8Array;
 // - testnet4
 const network: Network;
 
-const contractMultisig = multisig.new({
+const contractMultisig = multisig.createMultisig({
   parts,
   arbitrators,
   quorum,
