@@ -83,7 +83,7 @@ const address = contractMultisig.address();
 
 To spend UTXO's in multisig, do something like this:
 ```typescript
-import type { Multisig, Script, Utxo, TxOut } from "pls-bitcoin-lib";
+import type { Multisig, Script, Utxo, TxOut, LockTime } from "pls-bitcoin-lib";
 import { toXOnly, Psbt } from "bitcoinjs-lib";
 import type { ECPairInterface } from "ecpair";
 
@@ -102,6 +102,11 @@ const utxos: Utxo[];
 // Constructs outputs for funds destination
 const outs: TxOut[];
 
+// Provides an absolute lock time spending condition
+// It can be a timestamp in Unix format (seconds) or a block height
+// LockTime enum has functions like Blockheight and Timestamp to help when defining it
+const lockTime: LockTime | undefined;
+
 const rawPsbt = contractMultisig.startTxSpending({
   // Script to unlock UTXO's in bytes (Uint8Array)
   redeemScript: redeemScript.leaf,
@@ -109,6 +114,8 @@ const rawPsbt = contractMultisig.startTxSpending({
   utxos,
   // Destination outputs for contracts decisions
   outs,
+  // Lock transaction to being mined until it satisfies the lock time condition
+  lockTime,
 });
 
 const psbt = Psbt.fromBuffer(rawPsbt);
