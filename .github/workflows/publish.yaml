@@ -31,8 +31,8 @@ jobs:
         with:
           path: |
             .cargo-ci
-            **/node_modules/**
-          key: pls-bitcoin-wasm-${{ hashFiles('Cargo.lock', 'Cargo.toml', '**/node_modules/**') }}
+            **/node_modules
+          key: pls-bitcoin-wasm-${{ hashFiles('Cargo.lock', 'Cargo.toml', '**/package.json') }}
           restore-keys: |
             pls-bitcoin-wasm-
 
