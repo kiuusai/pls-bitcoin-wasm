@@ -90,19 +90,19 @@ import type { ECPairInterface } from "ecpair";
 // Constructed multisig
 const contractMultisig: Multisig;
 
-// Get scripts from multisig
+// Gets scripts from multisig
 const scripts = contractMultisig.scripts();
 
-// Finds script that contains the required parts
+// Find script that contains the desired key combination in Script.combination
 const redeemScript: Script;
 
-// Gets UTXO's data from blockchain
+// Get UTXO's data from blockchain
 const utxos: Utxo[];
 
-// Constructs outputs for funds destination
+// Construct outputs for funds destination
 const outs: TxOut[];
 
-// Provides an absolute lock time spending condition
+// Provide an absolute lock time spending condition
 // It can be a timestamp in Unix format (seconds) or a block height
 // LockTime enum has functions like Blockheight and Timestamp to help when defining it
 const lockTime: LockTime | undefined;
@@ -123,8 +123,10 @@ const psbt = Psbt.fromBuffer(rawPsbt);
 // Get needed keypairs to unlock UTXO's
 const keypairs: ECPairInterface[];
 
+// Sign inputs with keypairs signing
 for (let keypair of keypairs) psbt.signAllInputs(keypair);
 
+// Finalize all inputs
 psbt.finalizeAllInputs();
 
 // Constructed transaction data

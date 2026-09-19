@@ -8,5 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 bitcoin = "0.32.102"
-pls-bitcoin-lib = "0.2.4"
+pls-bitcoin-lib = "0.3.0"
 wit-bindgen = "0.61.1"
