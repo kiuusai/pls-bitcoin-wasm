@@ -1,3 +1,6 @@
 node_modules
 tests
+vitest.config.ts
 tsconfig.json
+/**/**.env
+/**/**.env.*
