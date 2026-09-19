@@ -1,6 +1,6 @@
 {
   "name": "pls-bitcoin-lib",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A Bitcoin multisig contracts constructor for Private Law Society project",
   "main": "./bitcoin/index.cjs",
   "scripts": {
