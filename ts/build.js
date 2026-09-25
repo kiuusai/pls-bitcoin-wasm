@@ -4,6 +4,10 @@ import fs from "fs";
 
 const properties = Object.keys(multisig);
 
-const result = await ejs.renderFile("./bitcoin/index.ejs", { properties });
+const versions = ["node", "web"];
 
-fs.writeFileSync("./bitcoin/index.js", result);
+for (let version of versions) {
+  const result = await ejs.renderFile("./bitcoin/index.ejs", { version, properties });
+
+  fs.writeFileSync(`./bitcoin/index.${version}.js`, result);
+}

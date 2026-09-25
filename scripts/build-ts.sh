@@ -20,21 +20,30 @@ build_ts() {
     --no-typescript
     --no-component-error-wrapping
     --no-namespaced-exports
-    --minify
-    --optimize
+    # --minify
+    # --optimize
   )
 
   general_args=(
-    --name pls_bitcoin_wasm
     --use-namespace-objects
     --strict
   )
 
-  jco transpile \
+  echo "Building web versions..."
+  jco transpile --no-nodejs-compat --name pls_bitcoin_wasm_web \
     "${transpile_args[@]}" \
     "${general_args[@]}" \
     "${WASM_SOURCE}" -o "${OUTPUT}"
-  jco types \
+  jco types --name pls_bitcoin_wasm_web \
+    "${general_args[@]}" \
+    "${WIT_SOURCE}" -o "${OUTPUT}"
+
+  echo "Building node versions..."
+  jco transpile --name pls_bitcoin_wasm_node \
+    "${transpile_args[@]}" \
+    "${general_args[@]}" \
+    "${WASM_SOURCE}" -o "${OUTPUT}"
+  jco types --name pls_bitcoin_wasm_node \
     "${general_args[@]}" \
     "${WIT_SOURCE}" -o "${OUTPUT}"
 
