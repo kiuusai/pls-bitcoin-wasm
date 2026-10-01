@@ -20,8 +20,8 @@ build_ts() {
     --no-typescript
     --no-component-error-wrapping
     --no-namespaced-exports
-    # --minify
-    # --optimize
+    --minify
+    --optimize
   )
 
   general_args=(
