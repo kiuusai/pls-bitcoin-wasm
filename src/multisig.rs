@@ -1,9 +1,12 @@
 use bitcoin::absolute::LockTime;
 use bitcoin::hashes::Hash;
-use pls_bitcoin_lib::{Multisig, MultisigData, SpendingData, Utxo};
+use pls_bitcoin_lib::{
+    Multisig, MultisigData, MultisigError as LibMultisigError, SpendingData, SpendingError, Utxo,
+};
 
-use bitcoin::secp256k1::PublicKey;
+use bitcoin::secp256k1::{PublicKey, XOnlyPublicKey};
 use bitcoin::{Address, Amount, Network, OutPoint, ScriptBuf, TxOut, Txid};
+use indexmap::IndexSet;
 
 use crate::bindings::exports::pls::bitcoin::multisig;
 use crate::bindings::exports::pls::bitcoin::multisig::{
@@ -21,6 +24,25 @@ fn enum_conversion(network: multisig::Network) -> Network {
         multisig::Network::Regtest => Network::Regtest,
         multisig::Network::Testnet => Network::Testnet,
         multisig::Network::Testnet4 => Network::Testnet4,
+    }
+}
+
+fn parse_xonly_key(bytes: &[u8]) -> Result<XOnlyPublicKey, bitcoin::secp256k1::Error> {
+    if bytes.len() == 32 {
+        XOnlyPublicKey::from_slice(bytes)
+    } else {
+        PublicKey::from_slice(bytes).map(|key| key.x_only_public_key().0)
+    }
+}
+
+fn parse_internal_key(bytes: &[u8]) -> Result<PublicKey, bitcoin::secp256k1::Error> {
+    if bytes.len() == 32 {
+        let mut compressed = Vec::with_capacity(33);
+        compressed.push(0x02);
+        compressed.extend_from_slice(bytes);
+        PublicKey::from_slice(&compressed)
+    } else {
+        PublicKey::from_slice(bytes)
     }
 }
 
@@ -110,12 +132,17 @@ impl multisig::GuestMultisig for MultisigWrapper {
             None
         };
 
-        let psbt = self.multisig.start_tx_spending(SpendingData {
-            redeem_script,
-            utxos,
-            outs,
-            lock_time,
-        });
+        let psbt = self
+            .multisig
+            .start_tx_spending(SpendingData {
+                redeem_script,
+                utxos,
+                outs,
+                lock_time,
+            })
+            .map_err(|err| match err {
+                SpendingError::ScriptNotFound => StartTxSpendingError::ScriptNotFound,
+            })?;
 
         return Ok(psbt.serialize());
     }
@@ -127,23 +154,36 @@ impl multisig::Guest for MultisigComponent {
     type Multisig = MultisigWrapper;
 
     fn create_multisig(data: multisig::MultisigData) -> Result<multisig::Multisig, MultisigError> {
-        let parts: Vec<PublicKey> = data
+        let parsed_parts: Vec<XOnlyPublicKey> = data
             .parts
             .clone()
             .iter()
-            .map(|part| PublicKey::from_slice(part))
+            .map(|part| parse_xonly_key(part))
             .collect::<Result<_, _>>()
             .map_err(|err| multisig::MultisigError::Parts(err.to_string()))?;
+        let mut parts: IndexSet<XOnlyPublicKey> = IndexSet::with_capacity(parsed_parts.len());
+        for part in parsed_parts {
+            if !parts.insert(part) {
+                return Err(MultisigError::DuplicatePart(part.to_string()));
+            }
+        }
 
-        let arbitrators: Vec<PublicKey> = data
+        let parsed_arbitrators: Vec<XOnlyPublicKey> = data
             .arbitrators
             .clone()
             .iter()
-            .map(|arbitrator| PublicKey::from_slice(arbitrator))
+            .map(|arbitrator| parse_xonly_key(arbitrator))
             .collect::<Result<_, _>>()
             .map_err(|err| multisig::MultisigError::Arbitrators(err.to_string()))?;
+        let mut arbitrators: IndexSet<XOnlyPublicKey> =
+            IndexSet::with_capacity(parsed_arbitrators.len());
+        for arbitrator in parsed_arbitrators {
+            if !arbitrators.insert(arbitrator) {
+                return Err(MultisigError::DuplicateArbitrator(arbitrator.to_string()));
+            }
+        }
 
-        let internal_pubkey = PublicKey::from_slice(&data.internal_pubkey.clone())
+        let internal_pubkey = parse_internal_key(&data.internal_pubkey)
             .map_err(|err| multisig::MultisigError::InternalPubkey(err.to_string()))?;
 
         let multisig = Multisig::new(MultisigData {
@@ -152,7 +192,13 @@ impl multisig::Guest for MultisigComponent {
             internal_pubkey,
             quorum: data.quorum as usize,
             network: enum_conversion(data.network),
-        });
+        })
+        .map_err(|err| match err {
+            LibMultisigError::QuorumZero => MultisigError::QuorumZero,
+            LibMultisigError::ArbitratorIsPart(key) => {
+                MultisigError::ArbitratorIsPart(key.to_string())
+            }
+        })?;
 
         Ok(multisig::Multisig::new(MultisigWrapper { multisig }))
     }

@@ -15,18 +15,19 @@ interface multisig {
 
     /// Required data for multisig creation
     record multisig-data {
-        /// A public key list from contractors (involved parts).
-        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+        /// Public keys from contractors (involved parts), each as a 32-byte x-only key or a 33-byte compressed key.
+        /// Compressed keys are converted to x-only keys for multisig construction
         parts: list<buffer>,
-        /// A public key list from arbitrators.
-        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+        /// Public keys from arbitrators, each as a 32-byte x-only key or a 33-byte compressed key.
+        /// Compressed keys are converted to x-only keys for multisig construction
         arbitrators: list<buffer>,
         /// Quorum of minimal necessary arbitrators to unlock funds
         quorum: u32,
         /// Internal public key. It's a critical data.
         /// If the private key of this one is known, all funds can be sweeped.
         /// This field exists for compatibility purposes with current on-air system.
-        /// It's a compressed public key (33 bytes key: 32 bytes + parity byte)
+        /// A 32-byte x-only key or a 33-byte compressed public key.
+        /// A 32-byte x-only key is interpreted as even parity (compressed prefix 0x02)
         // TODO: Finds a way to create a verifiable one using parts and arbitrators data instead of a hardcoded one
         internal-pubkey: buffer,
         /// Network to create  multisig
@@ -35,8 +36,7 @@ interface multisig {
 
     /// Describes a multisig script
     record script {
-        /// Combination of public keys for this script.
-        /// They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+        /// Combination of public keys for this script, returned as x-only keys (32 bytes)
         combination: list<buffer>,
         /// Taproot script bytes
         leaf: buffer,
@@ -87,9 +87,9 @@ interface multisig {
     resource multisig {
         /// Returns multisig address
         address: func() -> address;
-        /// Returns internal public key used to generate the multisig (XOnly format)
+        /// Returns the internal public key used to generate the multisig as an x-only key (32 bytes)
         internal-key: func() -> buffer;
-        /// Returns the list of scripts combinations to unlock funds
+        /// Returns a list of scripts with keys combinations for each script unlock option
         scripts: func() -> list<script>;
         /// Starts spending considering given data
         start-tx-spending: func(params: start-tx-spending-data) -> result<buffer, start-tx-spending-error>;
@@ -103,6 +103,14 @@ interface multisig {
         arbitrators(string),
         /// An error occurred while processing the internal public key
         internal-pubkey(string),
+        /// The arbitrator quorum must be greater than zero
+        quorum-zero,
+        /// A public key is configured as both a part and an arbitrator
+        arbitrator-is-part(string),
+        /// A public key is repeated within the parts list; contains the duplicate x-only key
+        duplicate-part(string),
+        /// A public key is repeated within the arbitrators list; contains the duplicate x-only key
+        duplicate-arbitrator(string),
     }
 
     /// Start UTXO's spending errors
@@ -113,6 +121,8 @@ interface multisig {
         out(string),
         /// An error occured while configuring lock-time
         lock-time(string),
+        /// The requested script is not a leaf in this multisig's Taproot tree
+        script-not-found,
     }
 
     /// Multisig builder

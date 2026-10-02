@@ -42,17 +42,17 @@ If you want to create a contract multisig, you can do something like this:
 import multisig from "pls-bitcoin-lib";
 import type { Network } from "pls-bitcoin-lib";
 
-// List of contractors public keys in compressed format (33 bytes: 32 bytes + parity byte)
+// Each public key can be x-only (32 bytes) or compressed (33 bytes).
 const parts: Uint8Array[];
 
-// List of arbitrators public keys in compressed format (33 bytes: 32 bytes + parity byte)
+// Compressed keys are converted to x-only keys during multisig creation.
 const arbitrators: Uint8Array[];
  
 // Minimum arbitrators quantity needed to unlock contract in dispute case
 const quorum: number;
 
-// Internal public key used to generate the script.
-// It's in compressed format (33 bytes: 32 bytes + parity byte)
+// Internal key can be x-only (32 bytes) or compressed (33 bytes).
+// An x-only internal key is interpreted as even parity (prefix 0x02).
 // Should be a public key with an unknown private key.
 // This field only exists for compatibility purposes.
 // It will probably be disabled in future
@@ -77,6 +77,40 @@ const contractMultisig = multisig.createMultisig({
 // Generated address for contract multisig
 // Deposit values to be locked here
 const address = contractMultisig.address();
+
+// The internal key and every key in scripts().combination are returned as
+// x-only public keys: 32 bytes without the compressed-key parity byte.
+const internalKey: Uint8Array = contractMultisig.internalKey();
+const scriptKeys: Uint8Array[] = contractMultisig.scripts()[0].combination;
+```
+
+Each `parts` and `arbitrators` key can be an x-only key (32 bytes) or a
+compressed key (33 bytes). Compressed inputs are converted to x-only form for
+multisig creation. `internalPubkey` also accepts either format; when supplied
+as a 32-byte x-only key, it is interpreted as the even-parity point (the
+compressed key prefix is `0x02`). Public keys returned by `internalKey()` and
+`scripts().combination` are always x-only keys (32 bytes).
+
+### Error handling
+
+WIT errors are thrown as tagged objects. Check the `tag` field to handle a
+specific error; variants with a string payload also include a `val` field.
+`createMultisig()` can throw `parts`, `arbitrators`, or `internal-pubkey` for
+invalid keys, `quorum-zero` for a zero quorum, or `arbitrator-is-part` when a
+key appears in both lists. It also throws `duplicate-part` or
+`duplicate-arbitrator` when a key repeats within its own list; the `val` field
+contains the duplicate x-only key. `startTxSpending()` can throw `utxo`, `out`,
+or `lock-time` for invalid spending data, or `script-not-found` when the
+redeem script is not a leaf in the multisig's Taproot tree. For example:
+
+```typescript
+try {
+  const contractMultisig = multisig.createMultisig(data);
+} catch (error) {
+  if (typeof error === "object" && error !== null && "tag" in error) {
+    // Handle the tagged WIT error variant.
+  }
+}
 ```
 
 ### Spending UTXO's in multisig
@@ -93,7 +127,7 @@ const contractMultisig: Multisig;
 // Gets scripts from multisig
 const scripts = contractMultisig.scripts();
 
-// Find script that contains the desired key combination in Script.combination
+// Find script that contains the desired x-only key combination in Script.combination
 const redeemScript: Script;
 
 // Get UTXO's data from blockchain
@@ -120,7 +154,8 @@ const rawPsbt = contractMultisig.startTxSpending({
 
 const psbt = Psbt.fromBuffer(rawPsbt);
 
-// Get needed keypairs to unlock UTXO's
+// Get needed keypairs by matching each 32-byte x-only key in the combination
+// against the x-only form of the compressed keypair public keys.
 const keypairs: ECPairInterface[];
 
 // Sign inputs with keypairs signing

@@ -32,13 +32,13 @@ export const Network: {
  */
 export interface MultisigData {
   /**
-   * A public key list from contractors (involved parts).
-   * They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+   * Public keys from contractors (involved parts), each as a 32-byte x-only key or a 33-byte compressed key.
+   * Compressed keys are converted to x-only keys for multisig construction
    */
   parts: Array<Buffer>,
   /**
-   * A public key list from arbitrators.
-   * They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+   * Public keys from arbitrators, each as a 32-byte x-only key or a 33-byte compressed key.
+   * Compressed keys are converted to x-only keys for multisig construction
    */
   arbitrators: Array<Buffer>,
   /**
@@ -49,7 +49,8 @@ export interface MultisigData {
    * Internal public key. It's a critical data.
    * If the private key of this one is known, all funds can be sweeped.
    * This field exists for compatibility purposes with current on-air system.
-   * It's a compressed public key (33 bytes key: 32 bytes + parity byte)
+   * A 32-byte x-only key or a 33-byte compressed public key.
+   * A 32-byte x-only key is interpreted as even parity (compressed prefix 0x02)
    * TODO: Finds a way to create a verifiable one using parts and arbitrators data instead of a hardcoded one
    */
   internalPubkey: Buffer,
@@ -63,8 +64,7 @@ export interface MultisigData {
  */
 export interface Script {
   /**
-   * Combination of public keys for this script.
-   * They're compressed public keys (33 bytes keys: 32 bytes + parity byte)
+   * Combination of public keys for this script, returned as x-only keys (32 bytes)
    */
   combination: Array<Buffer>,
   /**
@@ -159,7 +159,7 @@ export interface StartTxSpendingData {
 /**
  * Multisig build errors
  */
-export type MultisigError = MultisigErrorParts | MultisigErrorArbitrators | MultisigErrorInternalPubkey;
+export type MultisigError = MultisigErrorParts | MultisigErrorArbitrators | MultisigErrorInternalPubkey | MultisigErrorQuorumZero | MultisigErrorArbitratorIsPart | MultisigErrorDuplicatePart | MultisigErrorDuplicateArbitrator;
 /**
  * An error occurred while processing contractors (involved parts) keys
  */
@@ -181,6 +181,33 @@ export interface MultisigErrorInternalPubkey {
   tag: 'internal-pubkey',
   val: string,
 }
+/**
+ * The arbitrator quorum must be greater than zero
+ */
+export interface MultisigErrorQuorumZero {
+  tag: 'quorum-zero',
+}
+/**
+ * A public key is configured as both a part and an arbitrator
+ */
+export interface MultisigErrorArbitratorIsPart {
+  tag: 'arbitrator-is-part',
+  val: string,
+}
+/**
+ * A public key is repeated within the parts list; contains the duplicate x-only key
+ */
+export interface MultisigErrorDuplicatePart {
+  tag: 'duplicate-part',
+  val: string,
+}
+/**
+ * A public key is repeated within the arbitrators list; contains the duplicate x-only key
+ */
+export interface MultisigErrorDuplicateArbitrator {
+  tag: 'duplicate-arbitrator',
+  val: string,
+}
 export const MultisigError: {
   /**
    * An error occurred while processing contractors (involved parts) keys
@@ -194,11 +221,27 @@ export const MultisigError: {
    * An error occurred while processing the internal public key
    */
   readonly InternalPubkey: (val: string) => Extract<MultisigError, { tag: 'internal-pubkey' }>,
+  /**
+   * The arbitrator quorum must be greater than zero
+   */
+  readonly QuorumZero: () => Extract<MultisigError, { tag: 'quorum-zero' }>,
+  /**
+   * A public key is configured as both a part and an arbitrator
+   */
+  readonly ArbitratorIsPart: (val: string) => Extract<MultisigError, { tag: 'arbitrator-is-part' }>,
+  /**
+   * A public key is repeated within the parts list; contains the duplicate x-only key
+   */
+  readonly DuplicatePart: (val: string) => Extract<MultisigError, { tag: 'duplicate-part' }>,
+  /**
+   * A public key is repeated within the arbitrators list; contains the duplicate x-only key
+   */
+  readonly DuplicateArbitrator: (val: string) => Extract<MultisigError, { tag: 'duplicate-arbitrator' }>,
 };
 /**
  * Start UTXO's spending errors
  */
-export type StartTxSpendingError = StartTxSpendingErrorUtxo | StartTxSpendingErrorOut | StartTxSpendingErrorLockTime;
+export type StartTxSpendingError = StartTxSpendingErrorUtxo | StartTxSpendingErrorOut | StartTxSpendingErrorLockTime | StartTxSpendingErrorScriptNotFound;
 /**
  * An error occurred while processing UTXO's
  */
@@ -220,6 +263,12 @@ export interface StartTxSpendingErrorLockTime {
   tag: 'lock-time',
   val: string,
 }
+/**
+ * The requested script is not a leaf in this multisig's Taproot tree
+ */
+export interface StartTxSpendingErrorScriptNotFound {
+  tag: 'script-not-found',
+}
 export const StartTxSpendingError: {
   /**
    * An error occurred while processing UTXO's
@@ -233,6 +282,10 @@ export const StartTxSpendingError: {
    * An error occured while configuring lock-time
    */
   readonly LockTime: (val: string) => Extract<StartTxSpendingError, { tag: 'lock-time' }>,
+  /**
+   * The requested script is not a leaf in this multisig's Taproot tree
+   */
+  readonly ScriptNotFound: () => Extract<StartTxSpendingError, { tag: 'script-not-found' }>,
 };
 
 export class Multisig implements Disposable {
@@ -245,11 +298,11 @@ export class Multisig implements Disposable {
   */
   address(): Address;
   /**
-  * Returns internal public key used to generate the multisig (XOnly format)
+  * Returns the internal public key used to generate the multisig as an x-only key (32 bytes)
   */
   internalKey(): Buffer;
   /**
-  * Returns the list of scripts combinations to unlock funds
+  * Returns a list of scripts with keys combinations for each script unlock option
   */
   scripts(): Array<Script>;
   /**

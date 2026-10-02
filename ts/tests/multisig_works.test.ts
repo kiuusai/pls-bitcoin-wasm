@@ -62,11 +62,40 @@ describe("multisig test", () => {
         network,
       });
 
+      expect(ms.internalKey()).toHaveLength(32);
+      expect(ms.scripts().flatMap((script) => script.combination).every((key) => key.length === 32)).toBe(true);
+
       expect(() => ms.address()).not.toThrow();
       expect(ms.address()).not.toBeFalsy();
       expect(ms.address()).toMatch(regexp);
     },
   );
+
+  test("accepts x-only and compressed public key inputs", () => {
+    const parts = [ECPair.makeRandom().publicKey, ECPair.makeRandom().publicKey];
+    const arbitrators = [ECPair.makeRandom().publicKey];
+    const internalPubkey = ECPair.makeRandom().publicKey;
+    const compressedMultisig = multisig.createMultisig({
+      parts,
+      arbitrators,
+      quorum: 1,
+      internalPubkey,
+      network: "regtest",
+    });
+    const adaptableMultisig = multisig.createMultisig({
+      parts: [parts[0].slice(1), parts[1]],
+      arbitrators: [arbitrators[0].slice(1)],
+      quorum: 1,
+      internalPubkey: internalPubkey.slice(1),
+      network: "regtest",
+    });
+
+    expect(adaptableMultisig.address()).toBe(compressedMultisig.address());
+    expect(adaptableMultisig.internalKey()).toEqual(compressedMultisig.internalKey());
+    expect(adaptableMultisig.scripts().map((script) => script.leaf)).toEqual(
+      compressedMultisig.scripts().map((script) => script.leaf),
+    );
+  });
 
   type ArbitrationData = {
     partsCount: number;
@@ -128,11 +157,11 @@ describe("multisig test", () => {
       }
 
       partsEcpair.forEach((ecpair: ECPairInterface) => {
-        allEcpairs[bufferToHex(ecpair.publicKey)] = ecpair;
+        allEcpairs[bufferToHex(bitcoin.toXOnly(ecpair.publicKey))] = ecpair;
       });
 
       arbitratorsEcpair.forEach((ecpair: ECPairInterface) => {
-        allEcpairs[bufferToHex(ecpair.publicKey)] = ecpair;
+        allEcpairs[bufferToHex(bitcoin.toXOnly(ecpair.publicKey))] = ecpair;
       });
 
       const internalPubkey: Uint8Array = ECPair.makeRandom().publicKey;
