@@ -21,6 +21,16 @@ describe("multisig error test", () => {
     }), "quorum-zero");
   });
 
+  test("throws when the arbitrator quorum is greater than arbitrators length", () => {
+    expectWitError(() => multisig.createMultisig({
+      parts: [ECPair.makeRandom().publicKey],
+      arbitrators: [ECPair.makeRandom().publicKey],
+      quorum: 2,
+      internalPubkey: ECPair.makeRandom().publicKey,
+      network: "regtest",
+    }), "quorum-greater-than-arbitrators-length");
+  });
+
   test("throws when a public key is both a part and an arbitrator", () => {
     const sharedKey = ECPair.makeRandom().publicKey;
 

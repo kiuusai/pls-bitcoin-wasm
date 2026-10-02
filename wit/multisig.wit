@@ -105,6 +105,8 @@ interface multisig {
         internal-pubkey(string),
         /// The arbitrator quorum must be greater than zero
         quorum-zero,
+        /// The arbitrators quorum cannot be greater than arbitrators length
+        quorum-greater-than-arbitrators-length,
         /// A public key is configured as both a part and an arbitrator
         arbitrator-is-part(string),
         /// A public key is repeated within the parts list; contains the duplicate x-only key

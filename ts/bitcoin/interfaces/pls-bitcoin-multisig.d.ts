@@ -159,7 +159,7 @@ export interface StartTxSpendingData {
 /**
  * Multisig build errors
  */
-export type MultisigError = MultisigErrorParts | MultisigErrorArbitrators | MultisigErrorInternalPubkey | MultisigErrorQuorumZero | MultisigErrorArbitratorIsPart | MultisigErrorDuplicatePart | MultisigErrorDuplicateArbitrator;
+export type MultisigError = MultisigErrorParts | MultisigErrorArbitrators | MultisigErrorInternalPubkey | MultisigErrorQuorumZero | MultisigErrorQuorumGreaterThanArbitratorsLength | MultisigErrorArbitratorIsPart | MultisigErrorDuplicatePart | MultisigErrorDuplicateArbitrator;
 /**
  * An error occurred while processing contractors (involved parts) keys
  */
@@ -186,6 +186,12 @@ export interface MultisigErrorInternalPubkey {
  */
 export interface MultisigErrorQuorumZero {
   tag: 'quorum-zero',
+}
+/**
+ * The arbitrators quorum cannot be greater than arbitrators length
+ */
+export interface MultisigErrorQuorumGreaterThanArbitratorsLength {
+  tag: 'quorum-greater-than-arbitrators-length',
 }
 /**
  * A public key is configured as both a part and an arbitrator
@@ -225,6 +231,10 @@ export const MultisigError: {
    * The arbitrator quorum must be greater than zero
    */
   readonly QuorumZero: () => Extract<MultisigError, { tag: 'quorum-zero' }>,
+  /**
+   * The arbitrators quorum cannot be greater than arbitrators length
+   */
+  readonly QuorumGreaterThanArbitratorsLength: () => Extract<MultisigError, { tag: 'quorum-greater-than-arbitrators-length' }>,
   /**
    * A public key is configured as both a part and an arbitrator
    */

@@ -198,6 +198,9 @@ impl multisig::Guest for MultisigComponent {
             LibMultisigError::ArbitratorIsPart(key) => {
                 MultisigError::ArbitratorIsPart(key.to_string())
             }
+            LibMultisigError::QuorumGreaterThanArbitratorsLength => {
+                MultisigError::QuorumGreaterThanArbitratorsLength
+            }
         })?;
 
         Ok(multisig::Multisig::new(MultisigWrapper { multisig }))

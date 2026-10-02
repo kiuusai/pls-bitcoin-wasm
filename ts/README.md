@@ -95,19 +95,34 @@ compressed key prefix is `0x02`). Public keys returned by `internalKey()` and
 
 WIT errors are thrown as tagged objects. Check the `tag` field to handle a
 specific error; variants with a string payload also include a `val` field.
-`createMultisig()` can throw `parts`, `arbitrators`, or `internal-pubkey` for
-invalid keys, `quorum-zero` for a zero quorum, or `arbitrator-is-part` when a
-key appears in both lists. It also throws `duplicate-part` or
-`duplicate-arbitrator` when a key repeats within its own list; the `val` field
-contains the duplicate x-only key. `startTxSpending()` can throw `utxo`, `out`,
-or `lock-time` for invalid spending data, or `script-not-found` when the
-redeem script is not a leaf in the multisig's Taproot tree. For example:
+
+`createMultisig()` can throw:
+- `parts`, `arbitrators`, or `internal-pubkey`
+  - For: invalid keys
+- `quorum-zero`
+  - For: a zero quorum
+- `arbitrator-is-part`
+  - When: a key appears in both lists
+- `duplicate-part` or `duplicate-arbitrator`
+  - When: a key repeats within its own list
+  - The `val` field contains the duplicate x-only key
+
+`startTxSpending()` can throw:
+- `utxo`, `out`,`lock-time`
+  - For: invalid spending data
+- `script-not-found`
+- When: the redeem script is not a leaf in the multisig's Taproot tree
+
+See an error handling example:
 
 ```typescript
+import type { MultisigError } from "pls-bitcoin-lib";
+
 try {
   const contractMultisig = multisig.createMultisig(data);
 } catch (error) {
   if (typeof error === "object" && error !== null && "tag" in error) {
+    const err: MultisigError = error as any;
     // Handle the tagged WIT error variant.
   }
 }
